@@ -30,9 +30,12 @@
       return;
     }
     const writer = new NDEFWriter();
-    await writer.write("Hallo NFC!");
-    alert("Tag erfolgreich beschrieben!");
-  }
-</script>
+    await writer.write({ records: [{ recordType: "text", data: text }] });
+    status.textContent = "Erfolgreich geschrieben! Jetzt Tag entfernen.";
+      } catch (error) {
+        status.textContent = "Fehler beim Schreiben: " + error;
+      }
+    });
+  </script>
 </body>
 </html>
