@@ -1,34 +1,24 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NFC schreiben</title>
-</head>
-<body>
-  <h1>NFC schreiben</h1>
-  <input id="textInput" type="text" placeholder="Text eingeben" />
-  <button onclick="writeToTag()">Auf Tag schreiben</button>
-  <p id="status"></p>
+<button onclick="writeToNfc()">Auf Tag schreiben</button>
+<input type="text" id="textInput" placeholder="Text für den Tag" />
+<p id="status"></p>
 
-  <script>
-    async function writeToTag() {
-      const status = document.getElementById("status");
-      const text = document.getElementById("textInput").value.trim();
+<script>
+  async function writeToNfc() {
+    const text = document.getElementById("textInput").value.trim();
+    const status = document.getElementById("status");
 
-      if (!navigator.nfc && !("NDEFWriter" in window)) {
-        status.textContent = "Web NFC wird nicht unterstützt oder ist deaktiviert.";
-        return;
-      }
-
-      try {
-        const writer = new NDEFWriter();
-        await writer.write(text);
-        status.textContent = "Erfolgreich geschrieben!";
-      } catch (err) {
-        status.textContent = "Fehler beim Schreiben: " + err.message;
-      }
+    // HIER gehört die Prüfung rein:
+    if (!("NDEFWriter" in window)) {
+      status.textContent = "Web NFC wird von diesem Gerät nicht unterstützt.";
+      return;
     }
-  </script>
-</body>
-</html>
+
+    try {
+      const writer = new NDEFWriter();
+      await writer.write(text);
+      status.textContent = "Erfolgreich geschrieben!";
+    } catch (err) {
+      status.textContent = "Fehler beim Schreiben: " + err.message;
+    }
+  }
+</script>
