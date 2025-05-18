@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NFC schreiben</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFC-Tag beschreiben</title>
   <style>
     body { font-family: sans-serif; text-align: center; padding: 2em; }
     input, button { padding: 10px; margin: 10px; width: 80%; max-width: 300px; }
@@ -13,38 +13,33 @@
 <body>
 
   <h1>NFC-Tag beschreiben</h1>
-  <input type="text" id="textInput" placeholder="Text eingeben" />
+  <input type="text" id="textInput" placeholder="Text für den Tag" />
   <br />
   <button id="writeButton">Auf Tag schreiben</button>
   <p id="status"></p>
 
   <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const button = document.getElementById("writeButton");
-      const input = document.getElementById("textInput");
+    document.getElementById("writeButton").addEventListener("click", async () => {
+      const text = document.getElementById("textInput").value.trim();
       const status = document.getElementById("status");
 
-      button.addEventListener("click", async () => {
-        const text = input.value.trim();
+      if (!("NDEFWriter" in window)) {
+        status.textContent = "Web NFC wird von diesem Gerät nicht unterstützt.";
+        return;
+      }
 
-        if (!("NDEFWriter" in window)) {
-          status.textContent = "Web NFC wird von diesem Gerät nicht unterstützt.";
-          return;
-        }
+      if (!text) {
+        status.textContent = "Bitte geben Sie einen Text ein.";
+        return;
+      }
 
-        if (!text) {
-          status.textContent = "Bitte Text eingeben.";
-          return;
-        }
-
-        try {
-          const writer = new NDEFWriter();
-          await writer.write(text);
-          status.textContent = "Erfolgreich auf Tag geschrieben!";
-        } catch (err) {
-          status.textContent = "Fehler: " + err.message;
-        }
-      });
+      try {
+        const writer = new NDEFWriter();
+        await writer.write(text);
+        status.textContent = "Erfolgreich geschrieben!";
+      } catch (err) {
+        status.textContent = "Fehler beim Schreiben: " + err.message;
+      }
     });
   </script>
 
