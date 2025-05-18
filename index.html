@@ -3,17 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NFC-Writer</title>
+  <title>NFC-Tag beschreiben</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2em;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      width: 80%;
+      max-width: 300px;
+    }
+    #status {
+      margin-top: 1em;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <img src="Logo.png" alt="Mein Logo" style="max-width: 300px; display: block; margin: 20px auto;" />
-  <input type="text" id="textInput" placeholder="Text für NFC-Tag" />
+
+  <h1>NFC-Tag beschreiben</h1>
+
+  <input type="text" id="textInput" placeholder="Text für den NFC-Tag" />
+  <br />
   <button id="writeButton">Auf Tag schreiben</button>
+
   <p id="status"></p>
 
   <script>
     document.getElementById("writeButton").addEventListener("click", async () => {
-      const text = document.getElementById("textInput").value;
+      const text = document.getElementById("textInput").value.trim();
       const status = document.getElementById("status");
 
       if (!("NDEFWriter" in window)) {
@@ -21,21 +42,25 @@
         return;
       }
 
+      if (!text) {
+        status.textContent = "Bitte Text eingeben.";
+        return;
+      }
+
       try {
-        <button onclick="startNFC()">NFC schreiben</button>
-<script>
-  async function startNFC() {
-    if (!("NDEFWriter" in window)) {
-      alert("Web NFC wird nicht unterstützt");
-      return;
-    }
-    const writer = new NDEFWriter();
-    await writer.write({ records: [{ recordType: "text", data: text }] });
-    status.textContent = "Erfolgreich geschrieben! Jetzt Tag entfernen.";
+        const writer = new NDEFWriter();
+        await writer.write({
+          records: [{
+            recordType: "text",
+            data: text
+          }]
+        });
+        status.textContent = "Erfolgreich geschrieben. Tag kann entfernt werden.";
       } catch (error) {
-        status.textContent = "Fehler beim Schreiben: " + error;
+        status.textContent = "Fehler beim Schreiben: " + error.message;
       }
     });
   </script>
+
 </body>
 </html>
