@@ -41,11 +41,16 @@ alert("NDEFWriter in window: " + ("NDEFWriter" in window));
         try {
           const writer = new NDEFWriter();
           await writer.write({
-  records: [{ recordType: "text", data: text }]
+  records: [{
+    recordType: "text",
+    data: new TextEncoder().encode(text),
+    lang: "de"
+  }]
 });
           status.textContent = "Erfolgreich auf Tag geschrieben!";
         } catch (err) {
-          status.textContent = "Fehler: " + err.message;
+  console.error(err);
+  status.textContent = "Fehler: " + err.message;
         }
       });
     });
