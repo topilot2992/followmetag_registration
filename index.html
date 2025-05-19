@@ -39,7 +39,9 @@
 
         try {
           const writer = new NDEFWriter();
-          await writer.write(text);
+          await writer.write({
+  records: [{ recordType: "text", data: text }]
+});
           status.textContent = "Erfolgreich auf Tag geschrieben!";
         } catch (err) {
           status.textContent = "Fehler: " + err.message;
