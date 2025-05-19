@@ -27,7 +27,8 @@
       button.addEventListener("click", async () => {
         const text = input.value.trim();
 
-        if (!("NDEFWriter" in window)) {
+        console.log("NDEFWriter in window:", "NDEFWriter" in window);
+alert("NDEFWriter in window: " + ("NDEFWriter" in window));
           status.textContent = "Web NFC wird von diesem Gerät nicht unterstützt.";
           return;
         }
