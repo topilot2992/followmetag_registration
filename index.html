@@ -5,9 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NFC-Tag beschreiben</title>
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 2em; }
-    input, button { padding: 10px; margin: 10px; width: 80%; max-width: 300px; }
-    #status { margin-top: 1em; font-weight: bold; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2em;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      width: 80%;
+      max-width: 300px;
+    }
+    #status {
+      margin-top: 1em;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -19,42 +31,38 @@
   <p id="status"></p>
 
   <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const button = document.getElementById("writeButton");
-      const input = document.getElementById("textInput");
+    document.getElementById("writeButton").addEventListener("click", async () => {
+      const text = document.getElementById("textInput").value.trim();
       const status = document.getElementById("status");
 
-      button.addEventListener("click", async () => {
-        const text = input.value.trim();
+      if (!text) {
+        status.textContent = "Bitte Text eingeben.";
+        return;
+      }
 
-        if (!("NDEFWriter" in window)) {
-          status.textContent = "Web NFC wird von diesem Gerät nicht unterstützt.";
-          return;
-        }
+      try {
+        // Web NFC muss bei Klick erzeugt werden
+        const writer = new NDEFWriter();
 
-        if (!text) {
-          status.textContent = "Bitte Text eingeben.";
-          return;
-        }
+        await writer.write({
+          records: [{
+            recordType: "text",
+            data: new TextEncoder().encode(text),
+            lang: "de"
+          }]
+        });
 
-        try {
-          const writer = new NDEFWriter();
-
-          // Sicherer Schreibbefehl für kompatible Tags
-          await writer.write({
-            records: [{
-              recordType: "text",
-              data: new TextEncoder().encode(text),
-              lang: "de"
-            }]
-          });
-
-          status.textContent = "Erfolgreich auf Tag geschrieben!";
-        } catch (err) {
-          console.error(err);
+        status.textContent = "Erfolgreich geschrieben!";
+      } catch (err) {
+        console.error("NFC-Fehler:", err);
+        if (err.name === "NotAllowedError") {
+          status.textContent = "Zugriff verweigert. Bitte Seite neu laden und direkt schreiben.";
+        } else if (err.name === "NotSupportedError") {
+          status.textContent = "Web NFC wird auf diesem Gerät nicht unterstützt.";
+        } else {
           status.textContent = "Fehler: " + err.message;
         }
-      });
+      }
     });
   </script>
 
