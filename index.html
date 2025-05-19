@@ -3,37 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Web NFC Test</title>
+  <title>NFC-Tag beschreiben</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2em; }
+    input, button { padding: 10px; margin: 10px; width: 80%; max-width: 300px; }
+    #status { margin-top: 1em; font-weight: bold; }
+  </style>
 </head>
 <body>
-  <h1>Web NFC Test</h1>
-  <button id="scanButton">NFC-Tag scannen</button>
-  <p id="output"></p>
+
+  <h1>NFC-Tag beschreiben</h1>
+  <input type="text" id="textInput" placeholder="Text für den Tag" />
+  <br />
+  <button id="writeButton">Auf Tag schreiben</button>
+  <p id="status"></p>
 
   <script>
-    const scanButton = document.getElementById('scanButton');
-    const output = document.getElementById('output');
+    window.addEventListener("DOMContentLoaded", () => {
+      const button = document.getElementById("writeButton");
+      const input = document.getElementById("textInput");
+      const status = document.getElementById("status");
 
-    scanButton.addEventListener('click', async () => {
-      if ('NDEFReader' in window) {
-        try {
-          const ndef = new NDEFReader();
-          await ndef.scan();
-          output.textContent = 'Warte auf NFC-Tag...';
+      button.addEventListener("click", async () => {
+        const text = input.value.trim();
 
-          ndef.onreading = event => {
-            const decoder = new TextDecoder();
-            for (const record of event.message.records) {
-              output.textContent = `NFC-Daten: ${decoder.decode(record.data)}`;
-            }
-          };
-        } catch (error) {
-          output.textContent = `Fehler: ${error.message}`;
+        if (!("NDEFWriter" in window)) {
+          status.textContent = "Web NFC wird von diesem Gerät nicht unterstützt.";
+          return;
         }
-      } else {
-        output.textContent = 'Web NFC wird von diesem Browser nicht unterstützt.';
-      }
+
+        if (!text) {
+          status.textContent = "Bitte Text eingeben.";
+          return;
+        }
+
+        try {
+          const writer = new NDEFWriter();
+
+          // Sicherer Schreibbefehl für kompatible Tags
+          await writer.write({
+            records: [{
+              recordType: "text",
+              data: new TextEncoder().encode(text),
+              lang: "de"
+            }]
+          });
+
+          status.textContent = "Erfolgreich auf Tag geschrieben!";
+        } catch (err) {
+          console.error(err);
+          status.textContent = "Fehler: " + err.message;
+        }
+      });
     });
   </script>
+
 </body>
 </html>
