@@ -19,28 +19,42 @@
   <p id="status"></p>
 
   <script>
-    document.getElementById("writeButton").addEventListener("click", async () => {
-      const text = document.getElementById("textInput").value.trim();
+    window.addEventListener("DOMContentLoaded", () => {
+      const button = document.getElementById("writeButton");
+      const input = document.getElementById("textInput");
       const status = document.getElementById("status");
 
-      if (!("NDEFWriter" in window)) {
-        status.textContent = "Web NFC wird von diesem Gerät nicht unterstützt.";
-        return;
-      }
+      button.addEventListener("click", async () => {
+        const text = input.value.trim();
 
-      if (!text) {
-        status.textContent = "Bitte Text eingeben.";
-        return;
-      }
+        if (!("NDEFWriter" in window)) {
+          status.textContent = "Web NFC wird von diesem Gerät nicht unterstützt.";
+          return;
+        }
 
-      try {
-        const writer = new NDEFWriter();
-        await writer.write(text);
-        status.textContent = "Erfolgreich geschrieben!";
-      } catch (err) {
-        console.error("Fehler beim Schreiben:", err);
-        status.textContent = "Fehler: " + err.message;
-      }
+        if (!text) {
+          status.textContent = "Bitte Text eingeben.";
+          return;
+        }
+
+        try {
+          const writer = new NDEFWriter();
+
+          // Sicherer Schreibbefehl für kompatible Tags
+          await writer.write({
+            records: [{
+              recordType: "text",
+              data: new TextEncoder().encode(text),
+              lang: "de"
+            }]
+          });
+
+          status.textContent = "Erfolgreich auf Tag geschrieben!";
+        } catch (err) {
+          console.error(err);
+          status.textContent = "Fehler: " + err.message;
+        }
+      });
     });
   </script>
 
